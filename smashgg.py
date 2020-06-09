@@ -3,7 +3,6 @@
 import requests
 import json
 import pandas as pd
-from datetime import datetime
 from ratelimit import limits, sleep_and_retry
 
 ONE_MINUTE=60
@@ -100,7 +99,7 @@ query = """
             sortBy: "startAt desc"
             filter: {
               beforeDate: $beforeDate,
-              afterDate: 1543622400,
+              afterDate: 1543622400, #December 1st, 2018
                     }
           }) {
             nodes {
@@ -150,7 +149,7 @@ df =  pd.DataFrame({'name': [],
 #so future work is to convert this into a crawler that runs periodically once I get more info from devs
                 
 page = 1
-beforeDate = 1589932800
+beforeDate = 1591030143 #June 1, 2020
 
 loop = True
 while loop:
@@ -160,12 +159,12 @@ while loop:
     rlist = []
     badpages = []
     
-    while page <= 200:
+    for i in range(10): #10 requests before adding to data frame
         try:
             rlist.append(gg_req(page,beforeDate,query))  
         except Exception as e:
-            print("Exception: ",e,"Page: ",page)
-            badpages.append(page)
+            print("Exception: ",e,"Page: ",page) #Print page where limit hit
+            loop = False #Stop looping after this batch
             
         page +=1
     
@@ -178,13 +177,5 @@ while loop:
         loop = False
        
    
-#Add startDate and endDate columns for analysis
-#Then add data to csv
-startDate = df['startAt'].map(lambda val: datetime.utcfromtimestamp(int(val)).strftime('%m-%d-%Y')).rename("startDate")
-endDate = df['endAt'].map(lambda val: datetime.utcfromtimestamp(int(val)).strftime('%m-%d-%Y')).rename("endDate")
-
-newdf = pd.concat([df, startDate, endDate], axis = 1)
-
-#Had to save several csvs due to rate limit interruptions. Concatenated them for my analysis. Here's an example
-newdf.to_csv("example.csv")
+df.to_csv("example.csv")
 
