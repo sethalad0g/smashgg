@@ -6,7 +6,6 @@ The API is in Alpha, so this script might not work in the future.
 ----What this script does-----
 Calls SmashGG API to get data about all Tournaments between May 19, 2020 and December 1st, 2018. Grabbed the following fields for now:
 
-
 name - Tournament Name
 slug - Tournament slug, which is used to identify it in SmashGG and build urls
 shortSlug - Tournament shortSlug, which is used to identify it in SmashGG and build short urls
