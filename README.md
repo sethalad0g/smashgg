@@ -19,7 +19,7 @@ startAt - Start Unix Timestamp
 
 endAt - End Unix Timestamp
 
-countryCode - Which currency
+countryCode - Which country tournament was in
 
 currency - Currency used, such as USD
 
@@ -37,11 +37,13 @@ rules - Rules of Tournament
 
 venueName - Name of Venue
 
-startDate - MM/DD/YYYY date converted from startAt by me
+----Other Included Files----
 
-endDate - MM/DD/YYYY date converted from endAt by me
+attendeesbymonth.py - Shows how I transformed the data for preliminary analysis and plotted in Seaborn.
+requirements.txt - List of required Python modules.
+vizurl.txt - Tableau visualization of transformed data.
 
 ----Future Work----
 
-Convert script to crawler that avoids encountered limit.
+Convert script to crawler that avoids encountered hard limit.
 Expand query or add more queries to perform analysis on SmashGG data.
