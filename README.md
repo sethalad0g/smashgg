@@ -19,7 +19,7 @@ startAt - Start Unix Timestamp
 
 endAt - End Unix Timestamp
 
-countryCode - Which currency
+countryCode - Which country tournament was in
 
 currency - Currency used, such as USD
 
@@ -36,10 +36,6 @@ timezone - Timezone of tournament
 rules - Rules of Tournament
 
 venueName - Name of Venue
-
-startDate - MM/DD/YYYY date converted from startAt by me
-
-endDate - MM/DD/YYYY date converted from endAt by me
 
 ----Other Included Files----
 
