@@ -90,92 +90,94 @@ def tour_parser(rlist):
     
     return tourf
 
-#Put your graphql query here as a string
-query = """
-        query TournamentsByVideogame ($page: Int!, $beforeDate: Timestamp) {
-          tournaments(query: {
-            perPage: 100
-            page: $page
-            sortBy: "startAt desc"
-            filter: {
-              beforeDate: $beforeDate,
-              afterDate: 1543622400, #December 1st, 2018
+if __name__ == '__main__':
+
+    #Put your graphql query here as a string
+    query = """
+            query TournamentsByVideogame ($page: Int!, $beforeDate: Timestamp) {
+              tournaments(query: {
+                perPage: 100
+                page: $page
+                sortBy: "startAt desc"
+                filter: {
+                  beforeDate: $beforeDate,
+                  afterDate: 1543622400, #December 1st, 2018
+                        }
+              }) {
+                nodes {
+    
+                    name
+                    slug
+                    shortSlug
+                    numAttendees
+                    startAt
+                    endAt
+                    countryCode
+                    currency
+                    hasOfflineEvents
+                    hasOnlineEvents
+                    isOnline
+                    events {
+                      videogame {name}
                     }
-          }) {
-            nodes {
-
-                name
-                slug
-                shortSlug
-                numAttendees
-                startAt
-                endAt
-                countryCode
-                currency
-                hasOfflineEvents
-                hasOnlineEvents
-                isOnline
-                events {
-                  videogame {name}
+                    timezone
+                    rules
+                    venueName
+    
                 }
-                timezone
-                rules
-                venueName
-
+              }
             }
-          }
-        }
-"""
-
-#Made an empty dataframe so my while loop could be simpler
-df =  pd.DataFrame({'name': [],
-     'slug': [],
-     'shortSlug': [],
-     'numAttendees': [],
-     'startAt': [],
-     'endAt': [],
-     'countryCode': [],
-     'currency': [],
-     'hasOfflineEvents': [],
-     'hasOnlineEvents': [],
-     'isOnline': [],
-     'gamenames': [],
-     'timezone': [],
-     'rules': [],
-     'venueName': []})
-
-#smashgg has a rate limit. 80 requests per minute average. 1000 objects per request. I limited my api calls to 60/ minute but
-#still got stopped. Seems like the api stops you when you get to 10000 objects in some unknown timeframe, 
-#so future work is to convert this into a crawler that runs periodically once I get more info from devs
+    """
+    
+    #Made an empty dataframe so my while loop could be simpler
+    df =  pd.DataFrame({'name': [],
+         'slug': [],
+         'shortSlug': [],
+         'numAttendees': [],
+         'startAt': [],
+         'endAt': [],
+         'countryCode': [],
+         'currency': [],
+         'hasOfflineEvents': [],
+         'hasOnlineEvents': [],
+         'isOnline': [],
+         'gamenames': [],
+         'timezone': [],
+         'rules': [],
+         'venueName': []})
+    
+    #smashgg has a rate limit. 80 requests per minute average. 1000 objects per request. I limited my api calls to 60/ minute but
+    #still got stopped. Seems like the api stops you when you get to 10000 objects in some unknown timeframe, 
+    #so future work is to convert this into a crawler that runs periodically once I get more info from devs
+                    
+    page = 1
+    beforeDate = 1591030143 #June 1, 2020
+    
+    loop = True
+    while loop:
+           
+        og_count = len(df.index) #Starting size of dataframe each loop
+        
+        rlist = []
+        badpages = []
+        
+        for i in range(10): #10 requests before adding to data frame
+            try:
+                rlist.append(gg_req(page,beforeDate,query))  
+            except Exception as e:
+                print("Exception: ",e,"Page: ",page) #Print page where limit hit
+                loop = False #Stop looping after this batch
                 
-page = 1
-beforeDate = 1591030143 #June 1, 2020
-
-loop = True
-while loop:
+            page +=1
+        
+        df = pd.concat([ df, tour_parser(rlist)])
+        
+        new_count = len(df.index) #Size of dataframe at end of loop
+        
+        #Stop looping if more rows aren't added. Can add counter here to let it try more times before quitting.
+        if og_count == new_count:
+            loop = False
+           
        
-    og_count = len(df.index) #Starting size of dataframe each loop
+    df.to_csv("example.csv")
     
-    rlist = []
-    badpages = []
-    
-    for i in range(10): #10 requests before adding to data frame
-        try:
-            rlist.append(gg_req(page,beforeDate,query))  
-        except Exception as e:
-            print("Exception: ",e,"Page: ",page) #Print page where limit hit
-            loop = False #Stop looping after this batch
-            
-        page +=1
-    
-    df = pd.concat([ df, tour_parser(rlist)])
-    
-    new_count = len(df.index) #Size of dataframe at end of loop
-    
-    #Stop looping if more rows aren't added. Can add counter here to let it try more times before quitting.
-    if og_count == new_count:
-        loop = False
-       
-   
-df.to_csv("example.csv")
-
